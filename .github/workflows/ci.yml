@@ -24,16 +24,28 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -e ".[dev]"
 
-      - name: Lint (flake8)
-        run: flake8 src/ tests/
+      - name: Check dependency sync
+        run: python tools/check_dependency_sync.py
 
       - name: Format check (black)
         run: black --check src/ tests/
 
       - name: Import order check (isort)
         run: isort --check-only src/ tests/
+
+      - name: Lint (flake8)
+        run: flake8 src/ tests/
+
+      - name: Type check (mypy)
+        run: mypy src/floudsonnx
+
+      - name: Type check (pyright)
+        run: pyright src/floudsonnx
 
       - name: Unit tests
         run: pytest tests/unit/ -v --tb=short
@@ -50,9 +62,13 @@ jobs:
           python-version: "3.12"
 
       - name: Install with export extras
-        run: pip install -e ".[dev,export,seq2seq]"
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -e ".[dev,export,seq2seq]"
 
       - name: Integration tests
         run: pytest tests/integration/ -v --tb=short -m integration
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          FLOUDSONNX_EXPORT_HF_TOKEN: ${{ secrets.HF_TOKEN }}

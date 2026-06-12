@@ -1,4 +1,17 @@
 [flake8]
 max-line-length = 150
 extend-ignore = E203,W503,E501
-exclude = .git,__pycache__,.venv,build,dist,*.egg-info
+per-file-ignores =
+    # sys.path manipulation before imports is intentional in standalone scripts
+    examples/*.py: E402
+    manual_test.py: E402
+    test_all_models.py: E402
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    *.egg-info,
+    .mypy_cache,
+    .pytest_cache
