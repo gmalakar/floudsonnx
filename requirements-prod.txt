@@ -1,0 +1,13 @@
+## Production / runtime requirements
+## Mirrors [project.dependencies] in pyproject.toml exactly.
+## Install: pip install -r requirements-prod.txt
+##
+## Core deps: only what is needed to LOAD pre-exported ONNX models.
+## sentence-transformers intentionally excluded — always pass
+## library="transformers" explicitly to bypass ST auto-detection.
+## flouds-model-exporter intentionally excluded — export is opt-in.
+onnxruntime>=1.20.1
+transformers>=4.44.0,<4.58.0
+pydantic>=2.0
+pydantic-settings>=2.0
+numpy>=1.26.4,<1.27

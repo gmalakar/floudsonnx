@@ -1,0 +1,19 @@
+## Development requirements
+# Install with: pip install -r requirements-dev.txt
+-r requirements-prod.txt
+
+# Testing
+pytest>=7.0.0
+pytest-mock>=3.12.0
+
+# Code quality
+pre-commit==4.5.1
+black==24.1.1
+isort==5.13.2
+flake8==7.0.0
+flake8-bugbear
+flake8-comprehensions
+mypy==1.8.0
+pyright==1.1.407
+bandit==1.7.5
+pbr

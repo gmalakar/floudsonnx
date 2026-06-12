@@ -1,0 +1,125 @@
+# =============================================================================
+# Git ignore file for floudsonnx
+# =============================================================================
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+pyvenv.cfg
+
+# Environment and configuration files
+.env
+.env.*
+*.env
+.envrc
+appsettings.development.json
+appsettings.*.json
+!appsettings.json
+
+# IDE and editor files
+.idea/
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.ropeproject
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.bak
+*.old
+*.orig
+*.rej
+_patch.py
+
+# ML models and exported artifacts
+onnx/
+checkpoints/
+*.onnx
+*.pb
+*.pth
+*.pt
+*.h5
+*.hdf5
+*.pkl
+*.bin
+*.safetensors
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Documentation builds
+docs/_build/
+site/
+
+# MyPy / Pyright
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyright/
+
+# Profiling
+*.prof
+
+# Node.js
+node_modules/
+
+# Backup files
+*.backup
+*.bkp

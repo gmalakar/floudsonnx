@@ -1,0 +1,99 @@
+repos:
+  # Code formatting
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3
+        args: ["--line-length=150"]
+
+  # Import sorting
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--line-length=150"]
+
+  # Linting
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-bugbear
+          - flake8-comprehensions
+
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args:
+          - "--ignore-missing-imports"
+          - "--no-implicit-optional"
+          - "--warn-redundant-casts"
+          - "--warn-unused-ignores"
+          - "--disallow-incomplete-defs"
+        exclude: ^(tests/|examples/)
+
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ["-ll", "--exclude", "tests/"]
+        additional_dependencies: [pbr]
+        exclude: ^(tests/|examples/)
+
+  # General checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: detect-private-key
+
+  # Local project hooks
+  - repo: local
+    hooks:
+      - id: add-header
+        name: Add copyright header
+        entry: python tools/add_all_headers.py
+        language: system
+        files: \.py$
+
+      - id: dependency-sync
+        name: Check requirements-prod.txt mirrors pyproject.toml
+        entry: python tools/check_dependency_sync.py
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|requirements-prod\.txt)$
+
+      - id: pyright
+        name: pyright type check
+        entry: python -m pyright
+        language: system
+        pass_filenames: false
+        types_or: [python, pyi]
+        exclude: ^(tests/|examples/)
+
+      - id: pre-push-tests
+        name: Run unit tests before push
+        entry: python tools/pre_push_checks.py
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+default_language_version:
+  python: python3
+
+default_stages: [pre-commit]
+
+exclude: '(^|/)(\.venv|__pycache__|\.git|\.idea|\.pytest_cache|build|dist|[^/]+\.egg-info)(/|$)'

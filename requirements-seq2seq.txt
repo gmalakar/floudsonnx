@@ -1,0 +1,6 @@
+## Seq2seq / LLM runtime requirements (optional)
+# Install with: pip install -r requirements-seq2seq.txt
+-r requirements-prod.txt
+
+# ORTModelForSeq2SeqLM support (s2s, llm)
+optimum[onnxruntime]>=1.22.0

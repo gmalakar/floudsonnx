@@ -1,0 +1,10 @@
+## Export requirements (optional — needed for pull/auto-export)
+# Install with: pip install -r requirements-export.txt
+#
+# NOTE: optimum-onnx[onnxruntime] pulls sentence-transformers transitively.
+# Always pass library="transformers" explicitly when exporting fe/sc/ranker
+# models to bypass SentenceTransformer auto-detection.
+-r requirements-prod.txt
+
+# ONNX export via flouds-model-exporter
+flouds-model-exporter>=0.2.0

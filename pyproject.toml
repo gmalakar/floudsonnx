@@ -1,0 +1,134 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "floudsonnx"
+version = "0.1.0"
+description = "Ollama-style ONNX model store and runtime — pull, cache, and serve ORT sessions"
+readme = { file = "README.md", content-type = "text/markdown" }
+keywords = ["onnx", "onnxruntime", "model-serving", "huggingface", "inference", "flouds"]
+requires-python = ">=3.11,<3.13"
+authors = [{ name = "Goutam Malakar" }]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+# Core deps: only what is needed to LOAD pre-exported ONNX models.
+# sentence-transformers intentionally excluded.
+# flouds-model-exporter intentionally excluded (export is opt-in).
+dependencies = [
+    "onnxruntime>=1.20.1",
+    "transformers>=4.44.0,<4.58.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "numpy>=1.26.4,<1.27",
+]
+
+[project.optional-dependencies]
+# Auto-export from HuggingFace — mirrors requirements-export.txt
+export = [
+    "flouds-model-exporter>=0.2.0",
+]
+# ORTModelForSeq2SeqLM (s2s, llm) — mirrors requirements-seq2seq.txt
+seq2seq = [
+    "optimum[onnxruntime]>=1.22.0",
+]
+# Optional HTTP server
+server = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+]
+# Dev tooling — mirrors requirements-dev.txt
+dev = [
+    "pytest>=7.0.0",
+    "pytest-mock>=3.12.0",
+    "pre-commit==4.5.1",
+    "black==24.1.1",
+    "isort==5.13.2",
+    "flake8==7.0.0",
+    "flake8-bugbear",
+    "flake8-comprehensions",
+    "mypy==1.8.0",
+    "pyright==1.1.407",
+    "bandit==1.7.5",
+    "pbr",
+]
+all = ["floudsonnx[export,seq2seq,server]"]
+
+[project.urls]
+Repository = "https://github.com/gmalakar/floudsonnx"
+Issues = "https://github.com/gmalakar/floudsonnx/issues"
+
+[project.scripts]
+floudsonnx = "floudsonnx.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["floudsonnx*"]
+exclude = ["tests*", "tools*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["src"]
+markers = [
+    "unit: fast, no disk or network",
+    "integration: requires real HF model download",
+]
+filterwarnings = [
+    # Third-party deprecation warnings — not actionable from floudsonnx
+    "ignore::DeprecationWarning:huggingface_hub",
+    "ignore::DeprecationWarning:optimum",
+    "ignore::DeprecationWarning:torch",
+    "ignore::UserWarning:torch",
+    "ignore::FutureWarning:transformers",
+    "ignore::FutureWarning:torch",
+    # TracerWarning from torch.onnx during export
+    "ignore:.*TracerWarning.*:UserWarning",
+    "ignore::UserWarning:transformers",
+]
+
+[tool.black]
+line-length = 150
+target-version = ["py311", "py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 150
+
+[tool.mypy]
+ignore_missing_imports = true
+follow_imports = "skip"
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_incomplete_defs = true
+
+[tool.pyright]
+include = ["src/floudsonnx"]
+exclude = [
+    "**/__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    "src/floudsonnx.egg-info",
+]
+pythonVersion = "3.11"
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "basic"
+reportMissingImports = false
+reportMissingTypeStubs = false
