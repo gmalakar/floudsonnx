@@ -1,3 +1,11 @@
+# =============================================================================
+# File: bump_version.py
+# Date Created: 2026-06-12
+# Date Updated: 2026-06-12
+# Copyright (c) 2026 Goutam Malakar.
+# SPDX-License-Identifier: Apache-2.0
+# =============================================================================
+
 # ==============================================================================
 # tools/bump_version.py
 # Usage: python tools/bump_version.py 0.2.0

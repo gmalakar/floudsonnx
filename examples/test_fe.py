@@ -1,29 +1,32 @@
-# ==============================================================================
-# examples/test_fe.py
-# FE model smoke test — mirrors:
-#   flouds-export export --model-for fe \
-#       --model-name sentence-transformers/all-MiniLM-L6-v2 \
-#       --task feature-extraction --library transformers --normalize-embeddings
-# ==============================================================================
+# =============================================================================
+# File: test_fe.py
+# Date Created: 2026-06-10
+# Date Updated: 2026-06-12
+# Copyright (c) 2026 Goutam Malakar.
+# SPDX-License-Identifier: Apache-2.0
+# =============================================================================
+"""FE model smoke test — feature-extraction, normalize-embeddings."""
 from __future__ import annotations
 
 import sys
 import time
-import numpy as np
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))  # noqa: E402
 
-from floudsonnx import FloudsOnnxClient, FloudsOnnxSettings
+import numpy as np  # noqa: E402
+
+from floudsonnx import FloudsOnnxClient, FloudsOnnxSettings  # noqa: E402
 
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 MODEL_FOR = "fe"
 
 
-def section(t): print(f"\n{'='*60}\n  {t}\n{'='*60}")
+def section(t: str) -> None:
+    print(f"\n{'='*60}\n  {t}\n{'='*60}")
 
 
-def run():
+def run() -> None:
     client = FloudsOnnxClient(FloudsOnnxSettings())
 
     section("1. pull()")
@@ -34,6 +37,7 @@ def run():
     section("2. create_model()")
     model = client.create_model(MODEL, model_for=MODEL_FOR)
     print(f"  {model}")
+    assert model.session is not None
     inputs = [i.name for i in model.session.get_inputs()]
     print(f"  session inputs : {inputs}")
 

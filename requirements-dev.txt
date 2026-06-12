@@ -14,6 +14,6 @@ flake8==7.0.0
 flake8-bugbear
 flake8-comprehensions
 mypy==1.8.0
-pyright==1.1.407
+pyright==1.1.410
 bandit==1.7.5
 pbr

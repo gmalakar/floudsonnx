@@ -35,20 +35,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Auto-export from HuggingFace — mirrors requirements-export.txt
-export = [
-    "flouds-model-exporter>=0.2.0",
-]
-# ORTModelForSeq2SeqLM (s2s, llm) — mirrors requirements-seq2seq.txt
-seq2seq = [
-    "optimum[onnxruntime]>=1.22.0",
-]
-# Optional HTTP server
-server = [
-    "fastapi>=0.110.0",
-    "uvicorn[standard]>=0.29.0",
-]
-# Dev tooling — mirrors requirements-dev.txt
+export = ["flouds-model-exporter>=0.2.0"]
+seq2seq = ["optimum[onnxruntime]>=1.22.0"]
+server = ["fastapi>=0.110.0", "uvicorn[standard]>=0.29.0"]
 dev = [
     "pytest>=7.0.0",
     "pytest-mock>=3.12.0",
@@ -59,7 +48,7 @@ dev = [
     "flake8-bugbear",
     "flake8-comprehensions",
     "mypy==1.8.0",
-    "pyright==1.1.407",
+    "pyright==1.1.410",
     "bandit==1.7.5",
     "pbr",
 ]
@@ -89,16 +78,16 @@ markers = [
     "integration: requires real HF model download",
 ]
 filterwarnings = [
-    # Third-party deprecation warnings — not actionable from floudsonnx
-    "ignore::DeprecationWarning:huggingface_hub",
-    "ignore::DeprecationWarning:optimum",
-    "ignore::DeprecationWarning:torch",
+    # Suppress all third-party deprecation / user / future warnings
+    # that are not actionable from floudsonnx itself.
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+    # Suppress torch TracerWarning (subclass of UserWarning) from transformers/torch
+    "ignore:.*registered as constants.*",
+    "ignore:.*torch.tensor results.*",
     "ignore::UserWarning:torch",
-    "ignore::FutureWarning:transformers",
-    "ignore::FutureWarning:torch",
-    # TracerWarning from torch.onnx during export
-    "ignore:.*TracerWarning.*:UserWarning",
     "ignore::UserWarning:transformers",
+    "ignore::UserWarning:optimum",
 ]
 
 [tool.black]

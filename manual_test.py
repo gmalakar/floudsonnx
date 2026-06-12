@@ -1,24 +1,23 @@
-# ==============================================================================
-# manual_test.py
-# Quick manual smoke test for floudsonnx.
-#
-# Prerequisites:
-#   pip install floudsonnx[export]
-#   (do NOT install sentence-transformers — use library=transformers)
-#
-# Mirrors the CLI pattern:
-#   flouds-export export --model-for fe \
-#       --model-name sentence-transformers/all-MiniLM-L6-v2 \
-#       --task feature-extraction \
-#       --library transformers \
-#       --normalize-embeddings
-#
-# Usage:
-#   python manual_test.py
-#   python manual_test.py --model t5-small --for s2s
-#   python manual_test.py --no-export        # skip pull, load existing only
-#   python manual_test.py --home C:/tmp/flouds
-# ==============================================================================
+# =============================================================================
+# File: manual_test.py
+# Date Created: 2026-06-10
+# Date Updated: 2026-06-12
+# Copyright (c) 2026 Goutam Malakar.
+# SPDX-License-Identifier: Apache-2.0
+# =============================================================================
+"""
+Quick manual smoke test for floudsonnx.
+
+Prerequisites:
+    pip install floudsonnx[export]
+    do NOT install sentence-transformers — use library=transformers
+
+Usage:
+    python manual_test.py
+    python manual_test.py --model t5-small --for s2s
+    python manual_test.py --no-export
+    python manual_test.py --home C:/tmp/flouds
+"""
 from __future__ import annotations
 
 import argparse
@@ -33,7 +32,7 @@ def section(title: str) -> None:
     print(f"{'=' * 60}")
 
 
-def run(args: argparse.Namespace) -> int:
+def run(args: argparse.Namespace) -> int:  # noqa: C901
     from floudsonnx import FloudsOnnxClient, FloudsOnnxSettings
 
     settings = FloudsOnnxSettings(
@@ -45,13 +44,11 @@ def run(args: argparse.Namespace) -> int:
     model_name = args.model
     model_for = args.model_for
 
-    # Default library="transformers" for fe/sc/ranker to bypass
-    # sentence_transformers auto-detection when it is not installed
     library = args.library
     if library is None and model_for in ("fe", "sc", "ranker"):
         library = "transformers"
 
-    print(f"\nfloudsonnx manual test")
+    print("\nfloudsonnx manual test")
     print(f"  model               : {model_name}")
     print(f"  model_for           : {model_for}")
     print(f"  task                : {args.task or '(auto)'}")
@@ -95,11 +92,9 @@ def run(args: argparse.Namespace) -> int:
     print(f"  elapsed      : {elapsed:.3f}s")
     print(f"  is_seq2seq   : {model.is_seq2seq}")
     print(f"  tokenizer    : {type(model.tokenizer).__name__}")
-    if not model.is_seq2seq:
-        session_input_names = [inp.name for inp in model.session.get_inputs()]
-        session_output_names = [out.name for out in model.session.get_outputs()]
-        print(f"  session inputs : {session_input_names}")
-        print(f"  session outputs: {session_output_names}")
+    if not model.is_seq2seq and model.session is not None:
+        print(f"  session inputs : {[i.name for i in model.session.get_inputs()]}")
+        print(f"  session outputs: {[o.name for o in model.session.get_outputs()]}")
 
     # ── 4. INFERENCE ──────────────────────────────────────────────────────────
     section("4. inference")
@@ -107,28 +102,17 @@ def run(args: argparse.Namespace) -> int:
 
     if not model.is_seq2seq:
         import numpy as np
-        enc = model.tokenizer(
-            texts,
-            return_tensors="np",
-            padding=True,
-            truncation=True,
-            max_length=model.config.max_length,
-        )
-        # Build input feed from whatever the session actually expects —
-        # some models require token_type_ids, others don't
+
+        assert model.session is not None, "Expected InferenceSession for non-seq2seq model"
+        enc = model.tokenizer(texts, return_tensors="np", padding=True, truncation=True, max_length=model.config.max_length)
         session_inputs = {inp.name for inp in model.session.get_inputs()}
-        input_feed = {
-            name: enc[name].astype(np.int64)
-            for name in session_inputs
-            if name in enc
-        }
+        input_feed = {name: enc[name].astype(np.int64) for name in session_inputs if name in enc}
         missing = session_inputs - set(input_feed.keys())
         if missing:
             print(f"  WARN: tokenizer did not produce {missing}; adding zeros")
             for name in missing:
                 ref = next(iter(input_feed.values()))
                 input_feed[name] = np.zeros_like(ref)
-
         t0 = time.perf_counter()
         outputs = model.run(None, input_feed)
         elapsed = time.perf_counter() - t0
@@ -138,6 +122,7 @@ def run(args: argparse.Namespace) -> int:
         print(f"  elapsed        : {elapsed:.3f}s")
         print("  PASS: session.run() returned output")
     else:
+        assert model.seq2seq_model is not None, "Expected seq2seq_model for seq2seq model"
         enc = model.tokenizer(
             [f"{model.config.prepend_text}{texts[0]}"],
             return_tensors="pt",
@@ -145,10 +130,7 @@ def run(args: argparse.Namespace) -> int:
             max_length=model.config.max_length,
         )
         t0 = time.perf_counter()
-        out_ids = model.seq2seq_model.generate(
-            input_ids=enc["input_ids"],
-            max_new_tokens=64,
-        )
+        out_ids = model.seq2seq_model.generate(input_ids=enc["input_ids"], max_new_tokens=64)
         elapsed = time.perf_counter() - t0
         decoded = model.tokenizer.decode(out_ids[0], skip_special_tokens=True)
         print(f"  generated      : {decoded!r}")
@@ -199,19 +181,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="floudsonnx manual smoke test")
     parser.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2")
     parser.add_argument("--for", dest="model_for", default="fe")
-    parser.add_argument("--task", default="",
-                        help="Export task (default: auto from model_for)")
-    parser.add_argument("--library", default=None,
-                        help="Force exporter library: transformers | sentence_transformers")
+    parser.add_argument("--task", default="", help="Export task (default: auto from model_for)")
+    parser.add_argument("--library", default=None, help="transformers | sentence_transformers")
     parser.add_argument("--normalize-embeddings", action="store_true", default=False)
-    parser.add_argument("--optimize", action="store_true", default=False,
-                        help="Enable ONNX graph optimization on export")
+    parser.add_argument("--optimize", action="store_true", default=False)
     parser.add_argument("--home", default="~/.flouds")
-    parser.add_argument("--no-export", action="store_true",
-                        help="Skip pull; load existing model only")
+    parser.add_argument("--no-export", action="store_true")
     args = parser.parse_args()
 
     from pathlib import Path
+
     args.home = Path(args.home).expanduser()
 
     try:
@@ -221,6 +200,7 @@ def main() -> None:
         sys.exit(1)
     except Exception as exc:
         import traceback
+
         print(f"\nFAIL: {exc}")
         traceback.print_exc()
         sys.exit(1)

@@ -31,7 +31,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from floudsonnx.exceptions import ExportError, ExporterNotInstalledError
+from floudsonnx.exceptions import ExporterNotInstalledError, ExportError
 
 
 class ExporterBridge:
@@ -41,7 +41,7 @@ class ExporterBridge:
         model_name: str,
         model_dir: str,
         model_for: str,
-        task: str,                           # required — must not be None
+        task: str,  # required — must not be None
         optimize: bool = False,
         optimization_level: int = 99,
         opset_version: int | None = None,
@@ -52,8 +52,8 @@ class ExporterBridge:
         force: bool = False,
         trust_remote_code: bool = False,
         use_external_data_format: bool = False,
-        use_subprocess: bool = False,        # matches CLI default
-        use_fallback_if_failed: bool = False, # matches CLI default
+        use_subprocess: bool = False,  # matches CLI default
+        use_fallback_if_failed: bool = False,  # matches CLI default
         merge: bool = False,
         skip_validator: bool = False,
         hf_token: str | None = None,
@@ -69,7 +69,7 @@ class ExporterBridge:
         Raises ExporterNotInstalledError or ExportError.
         """
         try:
-            from model_exporter.export.pipeline import export as _export  # type: ignore[import]
+            from model_exporter.export.pipeline import export as _export
         except ImportError as exc:
             raise ExporterNotInstalledError() from exc
 

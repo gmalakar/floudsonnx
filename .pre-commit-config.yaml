@@ -1,5 +1,5 @@
 repos:
-  # Code formatting
+  # 1. Code formatting (Black runs first)
   - repo: https://github.com/psf/black
     rev: 24.1.1
     hooks:
@@ -7,14 +7,14 @@ repos:
         language_version: python3
         args: ["--line-length=150"]
 
-  # Import sorting
+  # 2. Import sorting (isort runs AFTER Black)
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       - id: isort
         args: ["--profile", "black", "--line-length=150"]
 
-  # Linting
+  # 3. Linting (flake8 runs AFTER formatting)
   - repo: https://github.com/PyCQA/flake8
     rev: 7.0.0
     hooks:
@@ -23,7 +23,7 @@ repos:
           - flake8-bugbear
           - flake8-comprehensions
 
-  # Type checking
+  # 4. Static type checking (mypy)
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
@@ -36,7 +36,7 @@ repos:
           - "--disallow-incomplete-defs"
         exclude: ^(tests/|examples/)
 
-  # Security scanning
+  # 5. Security scanning
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
@@ -45,7 +45,7 @@ repos:
         additional_dependencies: [pbr]
         exclude: ^(tests/|examples/)
 
-  # General checks
+  # 6. General checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -60,7 +60,7 @@ repos:
       - id: debug-statements
       - id: detect-private-key
 
-  # Local project hooks
+  # 7. Local project hooks
   - repo: local
     hooks:
       - id: add-header
@@ -76,6 +76,7 @@ repos:
         pass_filenames: false
         files: ^(pyproject\.toml|requirements-prod\.txt)$
 
+      # ⭐ Pyright tuned for harmony
       - id: pyright
         name: pyright type check
         entry: python -m pyright
@@ -83,6 +84,7 @@ repos:
         pass_filenames: false
         types_or: [python, pyi]
         exclude: ^(tests/|examples/)
+
 
       - id: pre-push-tests
         name: Run unit tests before push
